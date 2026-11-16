@@ -1,7 +1,7 @@
 // Offline support for the groundnut kernel price calculator.
 // When you upload a new version of any file, change VERSION (e.g. to v2)
 // so phones download the new files the next time they open the app online.
-const VERSION = "kernel-price-v1";
+const VERSION = "kernel-price-v2";
 
 const FILES = [
   "./index.html",
