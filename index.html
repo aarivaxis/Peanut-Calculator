@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Groundnut kernel price calculator</title>
-<meta name="description" content="Price per kg of sellable groundnut kernels from an in-shell purchase.">
+<meta name="description" content="Selling price and maximum buying price for groundnut kernels from an in-shell purchase.">
+<!-- app-only:start -->
 <meta name="theme-color" content="#EEF1E8" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121811" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,15 +15,25 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-180.png">
+<!-- app-only:end -->
 <style>
 :root {
-  --paper: #EEF1E8;
-  --surface: #FBFCF8;
-  --ink: #1E2A1B;
-  --muted: #56634F;
+  --paper: #E9EEE3;
+  --card: #FFFFFF;
+  --card-border: #D3DBC9;
+  --divider: #E3E8DC;
+  --tint: #F2F5ED;
+  --field: #FFFFFF;
+  --field-border: #C2CBB6;
+  --rail: #C5D0BA;
+  --surface: #FFFFFF;
+  --ink: #1C2719;
+  --label: #3B4836;
+  --muted: #5A6753;
   --line: #CBD3C1;
   --leaf: #3E5A2E;
-  --leaf-soft: #DDE5D3;
+  --on-leaf: #FFFFFF;
+  --leaf-soft: #DCE5D2;
   --ok: #3E5A2E;
   --warn: #A3361F;
   --result-bg: #23351B;
@@ -42,16 +53,25 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #121811;
-    --surface: #1A2218;
-    --ink: #E4EADC;
+    --paper: #10150F;
+    --card: #182016;
+    --card-border: #2B3627;
+    --divider: #2B3627;
+    --tint: #1F2A1C;
+    --field: #121910;
+    --field-border: #3D4B37;
+    --rail: #34422F;
+    --surface: #3A4D33;
+    --ink: #E6ECDE;
+    --label: #C6D0BC;
     --muted: #9EAB94;
-    --line: #313D2C;
+    --line: #3A4734;
     --leaf: #A9C68F;
-    --leaf-soft: #243120;
+    --on-leaf: #10150F;
+    --leaf-soft: #233021;
     --ok: #A9C68F;
     --warn: #F2937F;
-    --result-bg: #1E2B19;
+    --result-bg: #22341B;
     --result-ink: #EEF3E6;
     --result-muted: #A6B697;
     --result-line: #35472E;
@@ -63,16 +83,25 @@
   }
 }
 :root[data-theme="dark"] {
-  --paper: #121811;
-  --surface: #1A2218;
-  --ink: #E4EADC;
+  --paper: #10150F;
+  --card: #182016;
+  --card-border: #2B3627;
+  --divider: #2B3627;
+  --tint: #1F2A1C;
+  --field: #121910;
+  --field-border: #3D4B37;
+  --rail: #34422F;
+  --surface: #3A4D33;
+  --ink: #E6ECDE;
+  --label: #C6D0BC;
   --muted: #9EAB94;
-  --line: #313D2C;
+  --line: #3A4734;
   --leaf: #A9C68F;
-  --leaf-soft: #243120;
+  --on-leaf: #10150F;
+  --leaf-soft: #233021;
   --ok: #A9C68F;
   --warn: #F2937F;
-  --result-bg: #1E2B19;
+  --result-bg: #22341B;
   --result-ink: #EEF3E6;
   --result-muted: #A6B697;
   --result-line: #35472E;
@@ -82,7 +111,9 @@
   --result-err: #FFD6CF;
   color-scheme: dark;
 }
+
 *, *::before, *::after { box-sizing: inherit; }
+[hidden] { display: none !important; }
 html {
   scroll-padding-top: env(safe-area-inset-top, 0px);
   -webkit-text-size-adjust: 100%;
@@ -105,24 +136,53 @@ body::before {
   z-index: 10;
   background: var(--paper);
 }
-button, label, input, select { touch-action: manipulation; }
+button, label, input, select, summary { touch-action: manipulation; }
 .wrap {
-  max-width: 1120px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 32px max(20px, env(safe-area-inset-right, 0px)) 56px max(20px, env(safe-area-inset-left, 0px));
 }
 
-header h1 {
+/* ---------- Header ---------- */
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-mark { flex: none; width: 48px; height: 48px; border-radius: 12px; display: block; }
+.brand h1 {
+  margin: 0;
   font-family: var(--display);
-  font-size: clamp(1.75rem, 4.2vw, 2.5rem);
-  line-height: 1.1;
+  font-size: clamp(1.5rem, 4vw, 2.125rem);
+  line-height: 1.12;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  margin: 0 0 10px;
+  letter-spacing: -0.015em;
 }
-header p { margin: 0; color: var(--muted); max-width: 62ch; }
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  margin: 22px 0 0;
+  max-width: 520px;
+  background: var(--leaf-soft);
+  border-radius: 12px;
+}
+.tabs a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 46px;
+  padding: 6px 12px;
+  border-radius: 9px;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+.tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.tabs a:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.view-intro { margin: 14px 0 0; color: var(--muted); max-width: 62ch; }
 
-/* Page layout: one column on phones and tablets, two on wide screens */
+/* ---------- Layout ---------- */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -131,44 +191,94 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   align-items: start;
 }
 @media (min-width: 960px) {
-  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 32px; }
+  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 36px; }
+}
+.form { min-width: 0; display: grid; gap: 30px; }
+
+/* ---------- Steps: numbered sections joined by a rail ---------- */
+.step-sec { position: relative; min-width: 0; }
+.step-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.step {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--leaf);
+  color: var(--on-leaf);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+.head-text { min-width: 0; flex: 1; padding-top: 2px; }
+.step-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+.step-head .hint { margin: 3px 0 0; }
+.panel {
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 18px 20px;
+  container-type: inline-size;
+  container-name: panel;
+}
+@media (min-width: 600px) {
+  .panel { margin-left: 44px; padding: 20px 22px 22px; }
+  .step-sec::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 40px;
+    bottom: -30px;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--rail);
+  }
+  .form > .step-sec:last-child::before { display: none; }
 }
 
-/* Inputs */
-.form { min-width: 0; container-type: inline-size; container-name: form; }
-.group { padding: 22px 0; border-top: 1px solid var(--line); min-width: 0; }
-.group:first-child { border-top: 0; padding-top: 0; }
-.group h2 {
-  font-family: var(--display);
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.3;
+/* Sub-sections inside a panel */
+.sub { min-width: 0; }
+.sub + .sub { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--divider); }
+.sub h3 {
   margin: 0 0 2px;
-}
-.group h3 {
   font-family: var(--display);
-  font-size: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.3;
   font-weight: 700;
-  margin: 22px 0 2px;
+  color: var(--ink);
 }
-.hint { margin: 0 0 14px; color: var(--muted); font-size: 0.9375rem; max-width: 62ch; }
+.hint { margin: 0 0 14px; color: var(--muted); font-size: 0.9375rem; line-height: 1.45; max-width: 62ch; }
+.sub h3 + .hint { margin-top: 2px; }
+
+/* ---------- Fields ---------- */
 .row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px 16px; }
-@container form (min-width: 460px) {
+@container panel (min-width: 420px) {
   .row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .field { display: grid; gap: 6px; min-width: 0; }
-.field > .lbl { font-size: 0.9375rem; font-weight: 600; }
+.field > .lbl, .cap { font-size: 0.875rem; font-weight: 600; color: var(--label); }
 .input {
   display: flex;
   align-items: center;
   min-width: 0;
   min-height: 46px;
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--field);
+  border: 1px solid var(--field-border);
   border-radius: 8px;
 }
 .input:focus-within { outline: 2px solid var(--leaf); outline-offset: 1px; border-color: var(--leaf); }
-.input input {
+.input input, .input select {
   flex: 1 1 0;
   width: 0;
   min-width: 0;
@@ -183,107 +293,12 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   padding: 10px 12px;
   font-variant-numeric: tabular-nums;
 }
-.input input:focus { outline: none; }
+.input select { padding-right: 36px; cursor: pointer; }
+.input input:focus, .input select:focus { outline: none; }
 .input input::placeholder { color: var(--muted); opacity: 0.75; }
 .input input::-webkit-outer-spin-button,
 .input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .input input[type=number] { -moz-appearance: textfield; appearance: textfield; }
-.unit { flex: none; color: var(--muted); padding: 0 12px 0 0; white-space: nowrap; }
-.unit.pre { padding: 0 0 0 12px; }
-.field.is-hidden { display: none; }
-
-/* Grade rows: stacked cards on narrow screens, one line per grade on wide ones */
-.ghead { display: none; }
-.grow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
-  padding: 14px 0;
-  border-top: 1px solid var(--line);
-  min-width: 0;
-}
-.grow:first-child { border-top: 0; padding-top: 2px; }
-.grow .cell { display: grid; gap: 4px; min-width: 0; }
-.grow .cap { font-size: 0.875rem; font-weight: 600; }
-.rm {
-  grid-column: 1 / -1;
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 4px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--warn);
-  font: inherit;
-  font-size: 0.9375rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.rm .rm-x { display: none; }
-.grow .check { order: 1; }
-.grow .rm { order: 2; }
-.rm:hover .rm-text { text-decoration: underline; }
-.rm:focus-visible { outline: 2px solid var(--leaf); outline-offset: 1px; }
-@container form (min-width: 600px) {
-  .ghead, .grow {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 44px;
-    gap: 10px;
-    align-items: center;
-  }
-  .ghead { font-size: 0.875rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-  .grow { padding: 6px 0; border-top: 0; }
-  .grow .cell { display: block; }
-  .grow .cap, .rm .rm-text {
-    position: absolute; width: 1px; height: 1px; overflow: hidden;
-    clip: rect(0 0 0 0); white-space: nowrap;
-  }
-  .rm {
-    grid-column: auto;
-    justify-self: stretch;
-    width: 44px;
-    height: 46px;
-    padding: 0;
-    color: var(--muted);
-    font-size: 1.375rem;
-  }
-  .rm .rm-x { display: inline; }
-  .grow .rm { order: 0; }
-  .rm:hover { color: var(--warn); border-color: var(--line); }
-}
-/* Extra expense rows: stacked on narrow screens, one line each on wide ones */
-.ehead { display: none; }
-.erow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
-  padding: 14px 0;
-  border-top: 1px solid var(--line);
-  min-width: 0;
-}
-.erow:first-child { border-top: 0; padding-top: 2px; }
-.erow .cell { display: grid; gap: 4px; min-width: 0; }
-.erow .cell-name { grid-column: 1 / -1; }
-.erow .cap { font-size: 0.875rem; font-weight: 600; }
-@container form (min-width: 600px) {
-  .ehead, .erow {
-    display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) 44px;
-    gap: 10px;
-    align-items: center;
-  }
-  .ehead { font-size: 0.875rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-  .erow { padding: 6px 0; border-top: 0; }
-  .erow .cell { display: block; }
-  .erow .cell-name { grid-column: auto; }
-  .erow .cap {
-    position: absolute; width: 1px; height: 1px; overflow: hidden;
-    clip: rect(0 0 0 0); white-space: nowrap;
-  }
-}
 .input.has-select { position: relative; }
 .input.has-select::after {
   content: "";
@@ -297,45 +312,11 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   transform: translateY(-70%) rotate(45deg);
   pointer-events: none;
 }
-.input select {
-  flex: 1 1 0;
-  width: 0;
-  min-width: 0;
-  -webkit-appearance: none;
-  appearance: none;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: 1.0625rem;
-  padding: 10px 36px 10px 12px;
-  cursor: pointer;
-}
-.input select:focus { outline: none; }
-.check { grid-column: 1 / -1; margin: 0; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
-.check.ok { color: var(--ok); }
-.check.warn { color: var(--warn); font-weight: 600; }
-.check.plain { color: var(--muted); }
-.add {
-  margin-top: 8px;
-  min-height: 44px;
-  background: transparent;
-  border: 1px dashed var(--line);
-  color: var(--ink);
-  border-radius: 8px;
-  padding: 9px 16px;
-  font: inherit;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-.add:hover { border-color: var(--leaf); }
-.add:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
-.tally { margin: 16px 0 0; font-size: 0.9375rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.tally.warn { color: var(--warn); font-weight: 600; }
+.unit { flex: none; color: var(--muted); padding: 0 12px 0 0; white-space: nowrap; }
+.unit.pre { padding: 0 0 0 12px; }
+.field.is-hidden { display: none; }
 
-/* Two-way toggles: equal halves that never wrap into a broken pill */
+/* Two-way toggles */
 .seg {
   border: 0;
   margin: 0 0 14px;
@@ -369,12 +350,168 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
 .seg input:checked + span { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); font-weight: 600; }
 .seg input:focus-visible + span { outline: 2px solid var(--leaf); outline-offset: 2px; }
 
-/* Result */
+/* ---------- Grade and expense rows: tinted blocks ---------- */
+.rows { display: grid; gap: 10px; }
+.ghead, .ehead { display: none; }
+.grow, .erow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  padding: 12px;
+  background: var(--tint);
+  border-radius: 10px;
+  min-width: 0;
+}
+.grow .cell, .erow .cell { display: grid; gap: 4px; min-width: 0; }
+.erow .cell-name { grid-column: 1 / -1; }
+.rm {
+  grid-column: 1 / -1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--warn);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+.rm .rm-x { display: none; }
+.grow .check { order: 1; }
+.grow .rm, .erow .rm { order: 2; }
+.rm:hover .rm-text { text-decoration: underline; }
+.rm:focus-visible { outline: 2px solid var(--leaf); outline-offset: 1px; }
+@container panel (min-width: 560px) {
+  .ghead, .grow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 40px;
+    gap: 10px;
+    align-items: center;
+  }
+  .ehead, .erow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) 40px;
+    gap: 10px;
+    align-items: center;
+  }
+  .ghead, .ehead { padding: 0 12px; font-size: 0.8125rem; font-weight: 600; color: var(--label); margin-bottom: 6px; }
+  .grow, .erow { padding: 10px 12px; }
+  .grow .cell, .erow .cell { display: block; }
+  .erow .cell-name { grid-column: auto; }
+  .grow .cap, .erow .cap, .rm .rm-text {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .rm {
+    grid-column: auto;
+    justify-self: stretch;
+    width: 40px;
+    height: 44px;
+    padding: 0;
+    color: var(--muted);
+    font-size: 1.375rem;
+    font-weight: 400;
+  }
+  .rm .rm-x { display: inline; }
+  .grow .rm, .erow .rm { order: 0; }
+  .rm:hover { color: var(--warn); border-color: var(--line); background: var(--card); }
+}
+.check { grid-column: 1 / -1; margin: 0; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.check.ok { color: var(--ok); }
+.check.warn { color: var(--warn); font-weight: 600; }
+.check.plain { color: var(--muted); }
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  min-height: 44px;
+  background: transparent;
+  border: 1px dashed var(--field-border);
+  color: var(--leaf);
+  border-radius: 8px;
+  padding: 8px 16px 8px 12px;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.add::before { content: "+"; font-size: 1.25rem; line-height: 1; font-weight: 500; }
+.add:hover { border-color: var(--leaf); background: var(--tint); }
+.add:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.tally {
+  margin: 20px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--tint);
+  font-size: 0.9375rem;
+  color: var(--label);
+  font-variant-numeric: tabular-nums;
+}
+.tally:empty { display: none; }
+.tally.warn { color: var(--warn); font-weight: 600; }
+
+/* ---------- Fixed costs (step 3): folds to a line of chips ---------- */
+.fixed > summary { display: block; list-style: none; cursor: pointer; border-radius: 10px; }
+.fixed > summary::-webkit-details-marker { display: none; }
+.fixed > summary::marker { content: ""; }
+.fixed > summary:focus-visible { outline: 2px solid var(--leaf); outline-offset: 4px; }
+.fixed .step-head { margin-bottom: 0; }
+.fixed[open] .step-head { margin-bottom: 12px; }
+.fx-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--leaf);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.fx-toggle::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+.fixed[open] .fx-toggle::after { transform: translateY(2px) rotate(-135deg); }
+.fx-toggle .when-open { display: none; }
+.fixed[open] .fx-toggle .when-open { display: inline; }
+.fixed[open] .fx-toggle .when-closed { display: none; }
+.fx-sum { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.fixed[open] .fx-sum { display: none; }
+.chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--card-border);
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.chip.empty { background: transparent; box-shadow: inset 0 0 0 1px var(--line); color: var(--muted); }
+.chip.warn { background: transparent; box-shadow: inset 0 0 0 1px currentColor; color: var(--warn); font-weight: 600; }
+
+/* ---------- Result panel ---------- */
 .result {
   min-width: 0;
   background: var(--result-bg);
   color: var(--result-ink);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 28px 26px 24px;
 }
 @media (min-width: 960px) and (min-height: 900px) {
@@ -394,7 +531,7 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-#outInr { min-width: 0; overflow-wrap: anywhere; }
+#outInr, #buyMax { min-width: 0; overflow-wrap: anywhere; }
 .per { font-size: 1rem; font-weight: 500; color: var(--result-muted); letter-spacing: 0; white-space: nowrap; }
 .r-cents {
   margin: 12px 0 0;
@@ -407,15 +544,16 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
 }
 .r-cents .per { font-size: 0.9375rem; margin-left: 6px; }
 .r-cents.is-empty { font-family: var(--text); font-size: 0.9375rem; font-weight: 400; color: var(--result-muted); }
-
-.yield { margin-top: 26px; }
-.track {
-  display: flex;
-  height: 14px;
-  border-radius: 7px;
-  overflow: hidden;
-  background: var(--result-line);
+.r-section {
+  margin: 26px 0 4px;
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--result-ink);
 }
+
+.yield { margin-top: 24px; }
+.track { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--result-line); }
 .track span { transition: width 200ms ease; }
 .sw-k { background: var(--kernel); }
 .sw-m { background: repeating-linear-gradient(135deg, var(--kernel) 0 3px, transparent 3px 6px); }
@@ -425,27 +563,44 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
 .yield-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
 .yield-note { margin: 12px 0 0; font-size: 0.9375rem; color: var(--result-muted); }
 
-.breakdown { margin: 20px 0 0; border-top: 1px solid var(--result-line); }
+.breakdown { margin: 0; border-top: 1px solid var(--result-line); }
 .breakdown div { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--result-line); }
-.breakdown div[hidden] { display: none; }
 .breakdown dt { color: var(--result-muted); min-width: 0; }
 .breakdown dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.breakdown .subtotal dt, .breakdown .subtotal dd { color: var(--result-ink); font-weight: 600; }
 .breakdown .total { border-bottom: 0; padding-top: 12px; }
 .breakdown .total dt, .breakdown .total dd { color: var(--result-ink); font-weight: 700; font-size: 1.0625rem; }
-.breakdown .subtotal dt, .breakdown .subtotal dd { color: var(--result-ink); font-weight: 600; }
 .profit { margin: 12px 0 0; font-size: 0.9375rem; color: var(--result-muted); font-variant-numeric: tabular-nums; }
 .profit b { color: var(--result-ink); font-weight: 600; }
 .profit .nowrap { white-space: nowrap; }
 .profit.is-zero { color: var(--result-err); }
 
-.gt-title { margin: 22px 0 0; font-family: var(--display); font-size: 1rem; font-weight: 700; }
-.gt { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+.gt { width: 100%; border-collapse: collapse; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
 .gt th { text-align: left; font-weight: 500; color: var(--result-muted); padding: 6px 0; border-bottom: 1px solid var(--result-line); }
 .gt td { padding: 8px 0; border-bottom: 1px solid var(--result-line); overflow-wrap: anywhere; }
 .gt th + th, .gt td + td { text-align: right; padding-left: 12px; }
 .gt td + td { white-space: nowrap; }
 .gt tr.minor td { color: var(--result-muted); }
 .gt tr:last-child td { border-bottom: 0; }
+
+.rates { margin: 18px 0 0; display: grid; gap: 6px; }
+.rates div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--result-line);
+  min-width: 0;
+}
+.rates dt { font-size: 0.875rem; color: var(--result-muted); }
+.rates dd { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.125rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (min-width: 420px) {
+  .rates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rates div { display: block; }
+  .rates dd { margin-top: 2px; }
+}
 
 .err {
   margin: 18px 0 0;
@@ -456,7 +611,7 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   font-size: 0.9375rem;
 }
 .reset {
-  margin-top: 20px;
+  margin-top: 22px;
   min-height: 44px;
   background: transparent;
   color: var(--result-muted);
@@ -469,10 +624,11 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
 }
 .reset:hover { color: var(--result-ink); border-color: var(--result-muted); }
 .reset:focus-visible { outline: 2px solid var(--kernel); outline-offset: 2px; }
-.is-invalid .r-big, .is-invalid .r-cents, .is-invalid .yield,
-.is-invalid .breakdown, .is-invalid .profit, .is-invalid .gt-title, .is-invalid .gt { opacity: 0.35; }
+.is-invalid .r-big, .is-invalid .r-cents, .is-invalid .yield, .is-invalid .r-section,
+.is-invalid .breakdown, .is-invalid .profit, .is-invalid .gt,
+.is-invalid .rates, .is-invalid .yield-note { opacity: 0.35; }
 
-/* Offline app notes */
+/* ---------- Offline app notes ---------- */
 .update {
   display: flex;
   flex-wrap: wrap;
@@ -486,7 +642,6 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   color: var(--ink);
   font-size: 0.9375rem;
 }
-.update[hidden] { display: none; }
 .update button {
   min-height: 44px;
   background: var(--surface);
@@ -499,9 +654,9 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
   cursor: pointer;
 }
 .update button:focus-visible { outline: 2px solid var(--leaf); outline-offset: 2px; }
-.appnote { margin: 28px 0 0; font-size: 0.875rem; color: var(--muted); }
+.appnote { margin: 32px 0 0; font-size: 0.875rem; color: var(--muted); }
 
-/* Price bar pinned to the bottom while the result is off screen */
+/* ---------- Price bar pinned to the bottom on phones ---------- */
 .bar { display: none; }
 @media (max-width: 959px) {
   body { padding-bottom: 76px; }
@@ -531,10 +686,13 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
 @media (max-width: 480px) {
   .wrap {
     padding-top: 24px;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
+    padding-right: max(14px, env(safe-area-inset-right, 0px));
   }
-  .result { padding: 22px 18px 20px; border-radius: 14px; }
+  .panel { padding: 16px 14px 18px; border-radius: 12px; }
+  .grow, .erow { padding: 10px; }
+  .result { padding: 22px 18px 20px; border-radius: 16px; }
+  .brand-mark { width: 42px; height: 42px; border-radius: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .track span, .bar { transition: none; }
@@ -543,138 +701,229 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
 </head>
 <body>
 <div class="wrap">
+  <!-- app-only:start -->
   <div class="update" id="updateBanner" role="status" hidden>
     <span>A new version is installed.</span>
     <button type="button" id="reloadBtn">Reload</button>
   </div>
+  <!-- app-only:end -->
   <header>
-    <h1>Groundnut kernel price calculator</h1>
-    <p>Turn your in-shell purchase price into a price per kg of sellable kernels, with transport and packing added.</p>
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+        <defs>
+          <clipPath id="podClip">
+            <ellipse cx="256" cy="176" rx="96" ry="110"/>
+            <ellipse cx="256" cy="340" rx="104" ry="116"/>
+          </clipPath>
+        </defs>
+        <rect width="512" height="512" fill="#23351B"/>
+        <g transform="translate(256 256) rotate(-35) scale(0.86) translate(-256 -261)">
+          <g clip-path="url(#podClip)">
+            <rect x="120" y="50" width="272" height="420" fill="#D9C59B"/>
+            <g fill="none" stroke="#B49D6E" stroke-width="9" stroke-linecap="round">
+              <path d="M150 140 Q256 120 362 140"/>
+              <path d="M150 210 Q256 195 362 210"/>
+              <path d="M140 310 Q256 295 372 310"/>
+              <path d="M140 380 Q256 365 372 380"/>
+              <path d="M212 60 Q200 176 224 258 Q196 340 214 460"/>
+              <path d="M300 60 Q312 176 288 258 Q316 340 298 460"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <h1>Groundnut kernel price calculator</h1>
+    </div>
+    <nav class="tabs" aria-label="Calculator">
+      <a href="#sell" id="tabSell">Selling price</a>
+      <a href="#buy" id="tabBuy">Max buying price</a>
+    </nav>
+    <p class="view-intro" data-view="sell">Turn your in-shell purchase price into a selling price per kg of sellable kernels.</p>
+    <p class="view-intro" data-view="buy" hidden>Find the most you can pay for a lot of pods and still keep your margin.</p>
   </header>
 
   <div class="grid">
     <div class="form">
-      <section class="group">
-        <h2>What you paid</h2>
-        <p class="hint">The price for the full lot of in-shell groundnut (pods).</p>
-        <div class="row">
-          <label class="field">
-            <span class="lbl">Price for the lot</span>
-            <span class="input"><span class="unit pre">₹</span><input id="lotPrice" type="number" inputmode="decimal" min="0" step="any"></span>
-          </label>
-          <label class="field">
-            <span class="lbl">Lot weight</span>
-            <span class="input"><input id="lotKg" type="number" inputmode="decimal" min="0" step="any"><span class="unit">kg</span></span>
-          </label>
+      <section class="step-sec" data-view="sell" aria-labelledby="hPaid">
+        <div class="step-head">
+          <span class="step" aria-hidden="true">1</span>
+          <div class="head-text">
+            <h2 id="hPaid">What you paid</h2>
+            <p class="hint">The price for the full lot of in-shell groundnut (pods).</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="row">
+            <label class="field">
+              <span class="lbl">Price for the lot</span>
+              <span class="input"><span class="unit pre">₹</span><input id="lotPrice" type="number" inputmode="decimal" min="0" step="any"></span>
+            </label>
+            <label class="field">
+              <span class="lbl">Lot weight</span>
+              <span class="input"><input id="lotKg" class="lot-kg" type="number" inputmode="decimal" min="0" step="any"><span class="unit">kg</span></span>
+            </label>
+          </div>
         </div>
       </section>
 
-      <section class="group">
-        <h2>Shelling test</h2>
-        <p class="hint">Shell a sample of pods, sort the kernels by grade, and weigh each part.</p>
-        <div class="row">
-          <label class="field">
-            <span class="lbl">Pod sample weight</span>
-            <span class="input"><input id="sampleG" type="number" inputmode="decimal" min="0" step="any"><span class="unit">g</span></span>
-          </label>
+      <section class="step-sec" data-view="buy" aria-labelledby="hSellAt" hidden>
+        <div class="step-head">
+          <span class="step" aria-hidden="true">1</span>
+          <div class="head-text">
+            <h2 id="hSellAt">What you can sell at</h2>
+            <p class="hint">The price a buyer will pay you for sellable kernels.</p>
+          </div>
         </div>
-
-        <h3>Sellable grades</h3>
-        <p class="hint">To check a grade, count some of its kernels and weigh them. Leave “their weight” blank if you counted the whole portion.</p>
-        <div class="ghead" aria-hidden="true">
-          <span>Grade</span><span>Weight</span><span>Kernels counted</span><span>Their weight</span><span></span>
-        </div>
-        <div id="grades"></div>
-        <button type="button" class="add" id="addGrade">Add grade</button>
-
-        <h3>Smalls</h3>
-        <p class="hint">Kernels too small to sell as a grade. Leave the sale price blank if you don’t sell them.</p>
-        <div class="row">
-          <label class="field">
-            <span class="lbl">Smalls weight</span>
-            <span class="input"><input id="smallsG" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit">g</span></span>
-          </label>
-          <label class="field">
-            <span class="lbl">Smalls sale price</span>
-            <span class="input"><span class="unit pre">₹</span><input id="smallsPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit">per kg</span></span>
-          </label>
-        </div>
-        <p class="tally" id="tally"></p>
-      </section>
-
-      <section class="group">
-        <h2>Transport</h2>
-        <fieldset class="seg">
-          <legend>How transport is charged</legend>
-          <label><input type="radio" name="transBasis" value="lot"><span>For the whole lot</span></label>
-          <label><input type="radio" name="transBasis" value="kg"><span>Per kg of kernels</span></label>
-        </fieldset>
-        <div class="row">
-          <label class="field">
-            <span class="lbl" id="transLbl">Transport for the lot</span>
-            <span class="input"><span class="unit pre">₹</span><input id="transCost" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></span>
-          </label>
+        <div class="panel">
+          <fieldset class="seg">
+            <legend>Price is in</legend>
+            <label><input type="radio" name="targetUnit" value="inr"><span>₹ per kg</span></label>
+            <label><input type="radio" name="targetUnit" value="cents"><span>US ¢ per kg</span></label>
+          </fieldset>
+          <div class="row">
+            <label class="field">
+              <span class="lbl" id="targetLbl">Selling price per kg</span>
+              <span class="input"><span class="unit pre" id="targetPre">₹</span><input id="targetPrice" type="number" inputmode="decimal" min="0" step="any"><span class="unit" id="targetSuf">per kg</span></span>
+            </label>
+            <label class="field">
+              <span class="lbl">Lot weight</span>
+              <span class="input"><input id="lotKgBuy" class="lot-kg" type="number" inputmode="decimal" min="0" step="any"><span class="unit">kg</span></span>
+            </label>
+          </div>
         </div>
       </section>
 
-      <section class="group">
-        <h2>Packing</h2>
-        <fieldset class="seg">
-          <legend>How packing is charged</legend>
-          <label><input type="radio" name="packBasis" value="bag"><span>Per bag</span></label>
-          <label><input type="radio" name="packBasis" value="kg"><span>Per kg</span></label>
-        </fieldset>
-        <div class="row">
-          <label class="field">
-            <span class="lbl" id="packLbl">Cost per bag</span>
-            <span class="input"><span class="unit pre">₹</span><input id="packCost" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></span>
-          </label>
-          <label class="field" id="bagField">
-            <span class="lbl">One bag holds</span>
-            <span class="input"><input id="bagKg" type="number" inputmode="decimal" min="0" step="any"><span class="unit">kg</span></span>
-          </label>
+      <section class="step-sec" aria-labelledby="hShell">
+        <div class="step-head">
+          <span class="step" aria-hidden="true">2</span>
+          <div class="head-text">
+            <h2 id="hShell">Shelling test</h2>
+            <p class="hint">Shell a sample of pods, sort the kernels by grade, and weigh each part.</p>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="sub">
+            <div class="row">
+              <label class="field">
+                <span class="lbl">Pod sample weight</span>
+                <span class="input"><input id="sampleG" type="number" inputmode="decimal" min="0" step="any"><span class="unit">g</span></span>
+              </label>
+            </div>
+          </div>
+          <div class="sub">
+            <h3>Sellable grades</h3>
+            <p class="hint">To check a grade, count some of its kernels and weigh them. Leave “their weight” blank if you counted the whole portion.</p>
+            <div class="ghead" aria-hidden="true">
+              <span>Grade</span><span>Weight</span><span>Kernels counted</span><span>Their weight</span><span></span>
+            </div>
+            <div class="rows" id="grades"></div>
+            <button type="button" class="add" id="addGrade">Add grade</button>
+          </div>
+          <div class="sub">
+            <h3>Smalls</h3>
+            <p class="hint">Kernels too small to sell as a grade. Leave the sale price blank if you don’t sell them.</p>
+            <div class="row">
+              <label class="field">
+                <span class="lbl">Smalls weight</span>
+                <span class="input"><input id="smallsG" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit">g</span></span>
+              </label>
+              <label class="field">
+                <span class="lbl">Smalls sale price</span>
+                <span class="input"><span class="unit pre">₹</span><input id="smallsPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit">per kg</span></span>
+              </label>
+            </div>
+          </div>
+          <p class="tally" id="tally"></p>
         </div>
       </section>
 
-      <section class="group">
-        <h2>Extra expenses</h2>
-        <p class="hint">Any other cost, such as labour, commission or market fee. Leave it empty if there’s none.</p>
-        <div class="ehead" aria-hidden="true">
-          <span>Expense name</span><span>Amount</span><span>Charged</span><span></span>
-        </div>
-        <div id="expenses"></div>
-        <button type="button" class="add" id="addExpense">Add expense</button>
-      </section>
+      <details class="step-sec fixed" id="fixedCosts">
+        <summary>
+          <span class="step-head">
+            <span class="step" aria-hidden="true">3</span>
+            <span class="head-text">
+              <h2>Fixed costs</h2>
+              <span class="hint">Transport, packing, other expenses, margin and exchange rate.</span>
+              <span class="fx-sum" id="fixedSummary"></span>
+            </span>
+            <span class="fx-toggle" aria-hidden="true"><span class="when-closed">Edit</span><span class="when-open">Hide</span></span>
+          </span>
+        </summary>
+        <div class="panel">
+          <div class="sub">
+            <h3>Transport</h3>
+            <fieldset class="seg">
+              <legend>How transport is charged</legend>
+              <label><input type="radio" name="transBasis" value="lot"><span>For the whole lot</span></label>
+              <label><input type="radio" name="transBasis" value="kg"><span>Per kg of kernels</span></label>
+            </fieldset>
+            <div class="row">
+              <label class="field">
+                <span class="lbl" id="transLbl">Transport for the lot</span>
+                <span class="input"><span class="unit pre">₹</span><input id="transCost" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></span>
+              </label>
+            </div>
+          </div>
 
-      <section class="group">
-        <h2>Your margin</h2>
-        <p class="hint">Added on top of your cost to give the selling price.</p>
-        <fieldset class="seg">
-          <legend>How the margin is set</legend>
-          <label><input type="radio" name="marginBasis" value="kg"><span>₹ per kg</span></label>
-          <label><input type="radio" name="marginBasis" value="pct"><span>% on cost</span></label>
-        </fieldset>
-        <div class="row">
-          <label class="field">
-            <span class="lbl" id="marginLbl">Margin per kg</span>
-            <span class="input"><span class="unit pre" id="marginPre">₹</span><input id="margin" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit" id="marginSuf">per kg</span></span>
-          </label>
-        </div>
-      </section>
+          <div class="sub">
+            <h3>Packing</h3>
+            <fieldset class="seg">
+              <legend>How packing is charged</legend>
+              <label><input type="radio" name="packBasis" value="bag"><span>Per bag</span></label>
+              <label><input type="radio" name="packBasis" value="kg"><span>Per kg</span></label>
+            </fieldset>
+            <div class="row">
+              <label class="field">
+                <span class="lbl" id="packLbl">Cost per bag</span>
+                <span class="input"><span class="unit pre">₹</span><input id="packCost" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></span>
+              </label>
+              <label class="field" id="bagField">
+                <span class="lbl">One bag holds</span>
+                <span class="input"><input id="bagKg" type="number" inputmode="decimal" min="0" step="any"><span class="unit">kg</span></span>
+              </label>
+            </div>
+          </div>
 
-      <section class="group">
-        <h2>Exchange rate</h2>
-        <p class="hint">Used only for the price in cents. Update it when you quote.</p>
-        <div class="row">
-          <label class="field">
-            <span class="lbl">Rupees per US dollar</span>
-            <span class="input"><span class="unit pre">₹</span><input id="fxRate" type="number" inputmode="decimal" min="0" step="any" placeholder="Today’s rate"></span>
-          </label>
+          <div class="sub">
+            <h3>Extra expenses</h3>
+            <p class="hint">Any other cost, such as labour, commission or market fee. Leave it empty if there’s none.</p>
+            <div class="ehead" aria-hidden="true">
+              <span>Expense name</span><span>Amount</span><span>Charged</span><span></span>
+            </div>
+            <div class="rows" id="expenses"></div>
+            <button type="button" class="add" id="addExpense">Add expense</button>
+          </div>
+
+          <div class="sub">
+            <h3>Your margin</h3>
+            <p class="hint">Added on top of your cost to give the selling price.</p>
+            <fieldset class="seg">
+              <legend>How the margin is set</legend>
+              <label><input type="radio" name="marginBasis" value="kg"><span>₹ per kg</span></label>
+              <label><input type="radio" name="marginBasis" value="pct"><span>% on cost</span></label>
+            </fieldset>
+            <div class="row">
+              <label class="field">
+                <span class="lbl" id="marginLbl">Margin per kg</span>
+                <span class="input"><span class="unit pre" id="marginPre">₹</span><input id="margin" type="number" inputmode="decimal" min="0" step="any" placeholder="0"><span class="unit" id="marginSuf">per kg</span></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="sub">
+            <h3>Exchange rate</h3>
+            <p class="hint">Used for prices in US cents. Update it when you quote.</p>
+            <div class="row">
+              <label class="field">
+                <span class="lbl">Rupees per US dollar</span>
+                <span class="input"><span class="unit pre">₹</span><input id="fxRate" type="number" inputmode="decimal" min="0" step="any" placeholder="Today’s rate"></span>
+              </label>
+            </div>
+          </div>
         </div>
-      </section>
+      </details>
     </div>
 
-    <aside class="result" id="result" aria-live="polite">
+    <aside class="result" id="result" data-view="sell" aria-live="polite">
       <p class="r-label">Selling price per kg of sellable kernels</p>
       <p class="r-big"><span id="outInr">—</span><span class="per">per kg</span></p>
       <p class="r-cents" id="outCents">—</p>
@@ -689,7 +938,8 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
         <p class="yield-note" id="yieldNote"></p>
       </div>
 
-      <dl class="breakdown">
+      <p class="r-section">Cost breakdown</p>
+      <dl class="breakdown" id="sellBreakdown">
         <div><dt id="kernelLbl">Pod cost per sellable kg</dt><dd id="outKernel">—</dd></div>
         <div id="smallsRow" hidden><dt>Smalls sale</dt><dd id="outSmalls">—</dd></div>
         <div><dt>Transport</dt><dd id="outTrans">—</dd></div>
@@ -700,17 +950,35 @@ header p { margin: 0; color: var(--muted); max-width: 62ch; }
       </dl>
       <p class="profit" id="profitNote"></p>
 
-      <p class="gt-title">Kernels from this lot</p>
+      <p class="r-section">Kernels from this lot</p>
       <table class="gt">
         <thead><tr><th scope="col">Grade</th><th scope="col">Share of sellable</th><th scope="col">Weight</th></tr></thead>
         <tbody id="gtBody"></tbody>
       </table>
 
       <p class="err" id="err" hidden></p>
-      <button type="button" class="reset" id="reset">Reset to example values</button>
+      <button type="button" class="reset">Reset to example values</button>
+    </aside>
+
+    <aside class="result" id="buyResult" data-view="buy" aria-live="polite" hidden>
+      <p class="r-label">Most you can pay for this lot</p>
+      <p class="r-big"><span id="buyMax">—</span><span class="per" id="buyFor"></span></p>
+      <dl class="rates">
+        <div><dt>Per kg of pods</dt><dd id="buyPerKg">—</dd></div>
+        <div><dt>Per 20 kg</dt><dd id="buyPer20">—</dd></div>
+        <div><dt>Per quintal</dt><dd id="buyPerQ">—</dd></div>
+      </dl>
+      <p class="yield-note" id="buyYieldNote"></p>
+      <p class="r-section">How it’s worked out</p>
+      <dl class="breakdown" id="buyBreakdown"></dl>
+      <p class="profit" id="buySaveNote"></p>
+      <p class="err" id="buyErr" hidden></p>
+      <button type="button" class="reset">Reset to example values</button>
     </aside>
   </div>
+  <!-- app-only:start -->
   <p class="appnote" id="offlineStatus"></p>
+  <!-- app-only:end -->
 </div>
 
 <div class="bar" id="bar" aria-hidden="true">
@@ -739,28 +1007,18 @@ function countCheck(name, weightG, count, countG) {
   return { perOz: perOz, range: range, status: status };
 }
 
-function computePrice(i) {
-  var P = i.lotPrice, L = i.lotKg, s = i.sampleG;
+// Everything that does not depend on the lot price: yield, costs per sellable kg, margin rule.
+function prepareLot(i) {
+  var L = i.lotKg, s = i.sampleG;
   var T = isFinite(i.transCost) ? i.transCost : 0;
   var C = isFinite(i.packCost) ? i.packCost : 0;
   var smallsG = isFinite(i.smallsG) ? i.smallsG : 0;
   var smallsPrice = isFinite(i.smallsPrice) ? i.smallsPrice : 0;
+  var M = isFinite(i.margin) ? i.margin : 0;
   var grades = (i.grades || []).map(function (g, idx) {
     var name = (g.name || "").trim();
     return { name: name || ("Grade " + (idx + 1)), g: isFinite(g.g) ? g.g : 0 };
   });
-
-  if (!(P > 0)) return { error: "Enter the price you paid for the lot." };
-  if (!(L > 0)) return { error: "Enter the lot weight in kg." };
-  if (!(s > 0)) return { error: "Enter the pod sample weight in grams." };
-  if (smallsG < 0 || grades.some(function (g) { return g.g < 0; })) return { error: "Weights can’t be negative." };
-
-  var sellableG = grades.reduce(function (sum, g) { return sum + g.g; }, 0);
-  if (!(sellableG > 0)) return { error: "Enter the weight of at least one sellable grade." };
-  if (sellableG + smallsG > s + 1e-9) return { error: "Grades and smalls together can’t weigh more than the pod sample." };
-  if (T < 0 || C < 0 || smallsPrice < 0) return { error: "Costs and prices can’t be negative." };
-  var M = isFinite(i.margin) ? i.margin : 0;
-  if (M < 0) return { error: "Margin can’t be negative." };
   var expenses = (i.expenses || []).map(function (e) {
     return {
       name: (e.name || "").trim(),
@@ -768,18 +1026,22 @@ function computePrice(i) {
       basis: e.basis === "kg" ? "kg" : "lot"
     };
   });
-  if (expenses.some(function (e) { return e.amount < 0; })) return { error: "Extra expenses can’t be negative." };
-  if (i.packBasis === "bag" && C > 0 && !(i.bagKg > 0)) return { error: "Enter how many kg one bag holds." };
+
+  if (!(L > 0)) return { error: "Enter the lot weight in kg." };
+  if (!(s > 0)) return { error: "Enter the pod sample weight in grams." };
+  if (smallsG < 0 || grades.some(function (g) { return g.g < 0; })) return { error: "Weights can’t be negative." };
+  var sellableG = grades.reduce(function (sum, g) { return sum + g.g; }, 0);
+  if (!(sellableG > 0)) return { error: "Enter the weight of at least one sellable grade." };
+  if (sellableG + smallsG > s + 1e-9) return { error: "Grades and smalls together can’t weigh more than the pod sample." };
+  if (smallsPrice < 0) return { error: "Costs and prices can’t be negative." };
+  if (T < 0 || C < 0) return { error: "Costs and prices can’t be negative.", area: "fixed" };
+  if (M < 0) return { error: "Margin can’t be negative.", area: "fixed" };
+  if (expenses.some(function (e) { return e.amount < 0; })) return { error: "Extra expenses can’t be negative.", area: "fixed" };
+  if (i.packBasis === "bag" && C > 0 && !(i.bagKg > 0)) return { error: "Enter how many kg one bag holds.", area: "fixed" };
 
   var sellableKg = L * sellableG / s;
   var smallsKg = L * smallsG / s;
   var smallsIncome = smallsKg * smallsPrice;
-  if (smallsIncome >= P) return { error: "Smalls income is more than the lot price. Check the smalls sale price." };
-
-  var podCostPerKg = P / sellableKg;
-  var smallsCreditPerKg = smallsIncome / sellableKg;
-  var transPerKg = i.transBasis === "lot" ? T / sellableKg : T;
-  var packPerKg = i.packBasis === "bag" ? (C > 0 ? C / i.bagKg : 0) : C;
   var many = expenses.length > 1;
   var expenseLines = [];
   expenses.forEach(function (e, idx) {
@@ -791,41 +1053,85 @@ function computePrice(i) {
       perKg: e.basis === "lot" ? e.amount / sellableKg : e.amount
     });
   });
-  var extraPerKg = expenseLines.reduce(function (sum, e) { return sum + e.perKg; }, 0);
-  var costInr = podCostPerKg - smallsCreditPerKg + transPerKg + packPerKg + extraPerKg;
-  var marginPerKg = i.marginBasis === "pct" ? costInr * M / 100 : M;
-  var finalInr = costInr + marginPerKg;
 
-  var out = {
+  return {
+    lotKg: L,
     sellableRatio: sellableG / s,
     smallsRatio: smallsG / s,
     shellRatio: Math.max(0, 1 - (sellableG + smallsG) / s),
-    podPerKg: P / L,
     sellableKg: sellableKg,
     smallsKg: smallsKg,
     smallsIncome: smallsIncome,
+    smallsCreditPerKg: smallsIncome / sellableKg,
+    transPerKg: i.transBasis === "lot" ? T / sellableKg : T,
+    packPerKg: i.packBasis === "bag" ? (C > 0 ? C / i.bagKg : 0) : C,
+    expenses: expenseLines,
+    extraPerKg: expenseLines.reduce(function (sum, e) { return sum + e.perKg; }, 0),
+    marginBasis: i.marginBasis === "pct" ? "pct" : "kg",
+    marginValue: M,
+    grades: grades.filter(function (g) { return g.g > 0; }).map(function (g) {
+      return { name: g.name, shareOfSellable: g.g / sellableG, kgFromLot: L * g.g / s };
+    })
+  };
+}
+
+// Selling price: from what you paid for the lot.
+function computePrice(i) {
+  var P = i.lotPrice;
+  if (!(P > 0)) return { error: "Enter the price you paid for the lot." };
+  var b = prepareLot(i);
+  if (b.error) return b;
+  if (b.smallsIncome >= P) return { error: "Smalls income is more than the lot price. Check the smalls sale price." };
+
+  var podCostPerKg = P / b.sellableKg;
+  var costInr = podCostPerKg - b.smallsCreditPerKg + b.transPerKg + b.packPerKg + b.extraPerKg;
+  var marginPerKg = b.marginBasis === "pct" ? costInr * b.marginValue / 100 : b.marginValue;
+  var finalInr = costInr + marginPerKg;
+
+  var out = Object.assign({}, b, {
+    podPerKg: P / b.lotKg,
     podCostPerKg: podCostPerKg,
-    smallsCreditPerKg: smallsCreditPerKg,
-    transPerKg: transPerKg,
-    packPerKg: packPerKg,
     costInr: costInr,
     marginPerKg: marginPerKg,
     marginPct: costInr > 0 ? marginPerKg / costInr * 100 : 0,
-    marginOnLot: marginPerKg * sellableKg,
-    expenses: expenseLines,
-    extraPerKg: extraPerKg,
+    marginOnLot: marginPerKg * b.sellableKg,
     finalInr: finalInr,
-    grades: grades.filter(function (g) { return g.g > 0; }).map(function (g) {
-      return { name: g.name, shareOfSellable: g.g / sellableG, kgFromLot: L * g.g / s };
-    }),
     usdPerKg: null,
     centsPerKg: null
-  };
+  });
   if (i.fxRate > 0) {
     out.usdPerKg = finalInr / i.fxRate;
     out.centsPerKg = out.usdPerKg * 100;
   }
   return out;
+}
+
+// Maximum buying price: from what you can sell kernels at, working backwards.
+function computeMaxBuy(i) {
+  var unit = i.targetUnit === "cents" ? "cents" : "inr";
+  if (!(i.targetPrice > 0)) return { error: "Enter the price you can sell kernels at." };
+  if (unit === "cents" && !(i.fxRate > 0)) return { error: "Enter the exchange rate under Fixed costs to use a price in cents.", area: "fixed" };
+  var b = prepareLot(i);
+  if (b.error) return b;
+
+  var sellingInr = unit === "cents" ? i.targetPrice / 100 * i.fxRate : i.targetPrice;
+  var costInr = b.marginBasis === "pct" ? sellingInr / (1 + b.marginValue / 100) : sellingInr - b.marginValue;
+  var podCostPerKg = costInr + b.smallsCreditPerKg - b.transPerKg - b.packPerKg - b.extraPerKg;
+  var maxLot = podCostPerKg * b.sellableKg;
+
+  return Object.assign({}, b, {
+    targetUnit: unit,
+    targetValue: i.targetPrice,
+    fxRate: i.fxRate,
+    sellingInr: sellingInr,
+    costInr: costInr,
+    marginPerKg: sellingInr - costInr,
+    podCostPerKg: podCostPerKg,
+    maxLot: maxLot,
+    possible: maxLot > 0,
+    perKgPods: maxLot / b.lotKg,
+    profitPerThousand: 1000 / b.sellableKg
+  });
 }
 
 // UI wiring
@@ -841,16 +1147,25 @@ function computePrice(i) {
     packBasis: "bag", packCost: "30", bagKg: "50",
     marginBasis: "kg", margin: "5",
     expenses: [{ name: "", amount: "", basis: "lot" }],
-    fxRate: ""
+    fxRate: "",
+    targetUnit: "inr", targetPrice: "110.6",
+    fixedOpen: true
   };
-  var NUM_IDS = ["lotPrice", "lotKg", "sampleG", "smallsG", "smallsPrice", "transCost", "packCost", "bagKg", "margin", "fxRate"];
+  var NUM_IDS = ["lotPrice", "lotKg", "sampleG", "smallsG", "smallsPrice", "transCost", "packCost", "bagKg", "margin", "fxRate", "targetPrice"];
   var KEY = "groundnut-kernel-calc-v2";
+  var VIEWS = ["sell", "buy"];
   var $ = function (id) { return document.getElementById(id); };
+  var lastSell = null, lastBuy = null, resultVisible = {};
 
   function fmt(v, dp) {
     return v.toLocaleString("en-IN", { minimumFractionDigits: dp, maximumFractionDigits: dp });
   }
-  function inr(v) { return "₹" + fmt(v, 2); }
+  function inr(v) { return (v < 0 ? "−₹" : "₹") + fmt(Math.abs(v), 2); }
+  // Round a maximum price down, so the figure shown never exceeds what you can afford.
+  function inrFloor(v, dp) { var f = Math.pow(10, dp); return "₹" + fmt(Math.floor(v * f + 1e-6) / f, dp); }
+  function money(v) {
+    return "₹" + v.toLocaleString("en-IN", { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 });
+  }
   function pct(v) { return fmt(v * 100, 1) + "%"; }
   function numOf(str) { var v = parseFloat(str); return isFinite(v) ? v : NaN; }
   function num(id) { return numOf($(id).value); }
@@ -865,6 +1180,10 @@ function computePrice(i) {
     var s = document.createElement("small");
     s.textContent = small;
     el.append(s);
+  }
+  function view() {
+    var h = (location.hash || "").replace("#", "");
+    return VIEWS.indexOf(h) >= 0 ? h : "sell";
   }
 
   // Grade rows
@@ -944,40 +1263,6 @@ function computePrice(i) {
     });
   }
 
-  function load() {
-    var saved = null;
-    try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { saved = null; }
-    if (saved && typeof saved === "object") {
-      // Entries saved before the margin field existed start with no margin.
-      if (!("margin" in saved)) saved.margin = "";
-      apply(Object.assign({}, DEFAULTS, saved));
-    } else {
-      apply(DEFAULTS);
-    }
-  }
-  function apply(v) {
-    NUM_IDS.forEach(function (id) { $(id).value = v[id] == null ? "" : v[id]; });
-    setRadio("transBasis", v.transBasis);
-    setRadio("packBasis", v.packBasis);
-    setRadio("marginBasis", v.marginBasis);
-    $("grades").textContent = "";
-    var list = Array.isArray(v.grades) && v.grades.length ? v.grades : [{}];
-    list.forEach(function (g) { addRow(g); });
-    $("expenses").textContent = "";
-    var ex = Array.isArray(v.expenses) && v.expenses.length ? v.expenses : [{}];
-    ex.forEach(function (e) { addExpense(e); });
-  }
-  function save() {
-    var v = {};
-    NUM_IDS.forEach(function (id) { v[id] = $(id).value; });
-    v.transBasis = radio("transBasis");
-    v.packBasis = radio("packBasis");
-    v.marginBasis = radio("marginBasis");
-    v.grades = readRows().map(function (r) { return { name: r.name, g: r.g, count: r.count, countG: r.countG }; });
-    v.expenses = readExpenses();
-    try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* storage unavailable */ }
-  }
-
   function renderChecks(rows) {
     rows.forEach(function (r) {
       var p = r.el.querySelector(".check");
@@ -1008,53 +1293,83 @@ function computePrice(i) {
     }
   }
 
-  function render() {
-    var tb = radio("transBasis"), pb = radio("packBasis");
-    $("transLbl").textContent = tb === "lot" ? "Transport for the lot" : "Transport per kg";
-    $("packLbl").textContent = pb === "bag" ? "Cost per bag" : "Packing per kg";
-    $("bagField").classList.toggle("is-hidden", pb !== "bag");
-    var mb = radio("marginBasis");
-    $("marginLbl").textContent = mb === "pct" ? "Margin on cost" : "Margin per kg";
-    $("marginPre").hidden = mb === "pct";
-    $("marginSuf").textContent = mb === "pct" ? "%" : "per kg";
+  function load() {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { saved = null; }
+    if (saved && typeof saved === "object") {
+      // Entries saved by earlier versions: no surprise margin, and fixed costs start folded.
+      if (!("margin" in saved)) saved.margin = "";
+      if (!("fixedOpen" in saved)) saved.fixedOpen = false;
+      apply(Object.assign({}, DEFAULTS, saved));
+    } else {
+      apply(DEFAULTS);
+    }
+  }
+  function apply(v) {
+    NUM_IDS.forEach(function (id) { $(id).value = v[id] == null ? "" : v[id]; });
+    $("lotKgBuy").value = $("lotKg").value;
+    setRadio("transBasis", v.transBasis);
+    setRadio("packBasis", v.packBasis);
+    setRadio("marginBasis", v.marginBasis);
+    setRadio("targetUnit", v.targetUnit);
+    $("grades").textContent = "";
+    var list = Array.isArray(v.grades) && v.grades.length ? v.grades : [{}];
+    list.forEach(function (g) { addRow(g); });
+    $("expenses").textContent = "";
+    var ex = Array.isArray(v.expenses) && v.expenses.length ? v.expenses : [{}];
+    ex.forEach(function (e) { addExpense(e); });
+    $("fixedCosts").open = !!v.fixedOpen;
+  }
+  function save() {
+    var v = {};
+    NUM_IDS.forEach(function (id) { v[id] = $(id).value; });
+    v.transBasis = radio("transBasis");
+    v.packBasis = radio("packBasis");
+    v.marginBasis = radio("marginBasis");
+    v.targetUnit = radio("targetUnit");
+    v.grades = readRows().map(function (r) { return { name: r.name, g: r.g, count: r.count, countG: r.countG }; });
+    v.expenses = readExpenses();
+    v.fixedOpen = $("fixedCosts").open;
+    try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { /* storage unavailable */ }
+  }
 
+  function gather() {
     var rows = readRows();
-    renderChecks(rows);
-    renderTally(rows);
+    return {
+      rows: rows,
+      input: {
+        lotPrice: num("lotPrice"), lotKg: num("lotKg"), sampleG: num("sampleG"),
+        grades: rows.map(function (x) { return { name: x.name, g: numOf(x.g) }; }),
+        smallsG: num("smallsG"), smallsPrice: num("smallsPrice"),
+        transBasis: radio("transBasis"), transCost: num("transCost"),
+        packBasis: radio("packBasis"), packCost: num("packCost"), bagKg: num("bagKg"),
+        marginBasis: radio("marginBasis"), margin: num("margin"),
+        expenses: readExpenses().map(function (e) { return { name: e.name, amount: numOf(e.amount), basis: e.basis }; }),
+        fxRate: num("fxRate"),
+        targetUnit: radio("targetUnit"), targetPrice: num("targetPrice")
+      }
+    };
+  }
 
-    var r = computePrice({
-      lotPrice: num("lotPrice"), lotKg: num("lotKg"), sampleG: num("sampleG"),
-      grades: rows.map(function (x) { return { name: x.name, g: numOf(x.g) }; }),
-      smallsG: num("smallsG"), smallsPrice: num("smallsPrice"),
-      transBasis: tb, transCost: num("transCost"),
-      packBasis: pb, packCost: num("packCost"), bagKg: num("bagKg"),
-      marginBasis: mb, margin: num("margin"),
-      expenses: readExpenses().map(function (e) { return { name: e.name, amount: numOf(e.amount), basis: e.basis }; }),
-      fxRate: num("fxRate")
-    });
-
+  function renderSell(r) {
     var res = $("result"), err = $("err"), cents = $("outCents");
     if (r.error) {
       res.classList.add("is-invalid");
       err.textContent = r.error;
       err.hidden = false;
-      $("barInr").textContent = "—";
-      $("barCents").textContent = "";
       return;
     }
     res.classList.remove("is-invalid");
     err.hidden = true;
 
     $("outInr").textContent = inr(r.finalInr);
-
     $("barK").style.width = (r.sellableRatio * 100) + "%";
     $("barM").style.width = (r.smallsRatio * 100) + "%";
     $("barS").style.width = (r.shellRatio * 100) + "%";
     $("sellPct").textContent = pct(r.sellableRatio);
     $("smallPct").textContent = pct(r.smallsRatio);
     $("shellPct").textContent = pct(r.shellRatio);
-    var lot = num("lotKg");
-    var note = "Pods cost " + inr(r.podPerKg) + " per kg. " + fmt(lot, 0) + " kg of pods gives about " +
+    var note = "Pods cost " + inr(r.podPerKg) + " per kg. " + fmt(r.lotKg, 0) + " kg of pods gives about " +
       fmt(r.sellableKg, 1) + " kg of sellable kernels";
     note += r.smallsKg > 0 ? " and " + fmt(r.smallsKg, 1) + " kg of smalls." : ".";
     if (r.smallsIncome > 0) note += " Selling the smalls brings back " + inr(r.smallsIncome) + ".";
@@ -1066,7 +1381,8 @@ function computePrice(i) {
     $("outSmalls").textContent = "− " + inr(r.smallsCreditPerKg);
     $("outTrans").textContent = "+ " + inr(r.transPerKg);
     $("outPack").textContent = "+ " + inr(r.packPerKg);
-    var dl = document.querySelector(".breakdown");
+
+    var dl = $("sellBreakdown");
     Array.prototype.forEach.call(dl.querySelectorAll(".exp-line"), function (n) { n.remove(); });
     r.expenses.forEach(function (e) {
       var line = document.createElement("div");
@@ -1079,24 +1395,25 @@ function computePrice(i) {
       dl.insertBefore(line, $("costRow"));
     });
     $("outCost").textContent = inr(r.costInr);
-    $("marginRowLbl").textContent = mb === "pct" ? "Margin (" + fmt(r.marginPct, 1) + "% on cost)" : "Margin";
+    $("marginRowLbl").textContent = r.marginBasis === "pct" ? "Margin (" + fmt(r.marginPct, 1) + "% on cost)" : "Margin";
     $("outMargin").textContent = "+ " + inr(r.marginPerKg);
+    $("outTotal").textContent = inr(r.finalInr);
+
     var pn = $("profitNote");
     pn.textContent = "";
     if (r.marginPerKg > 0) {
       pn.className = "profit";
       pn.append("Your margin on this lot: ");
-      var pb2 = document.createElement("b");
-      pb2.textContent = inr(r.marginOnLot);
+      var b = document.createElement("b");
+      b.textContent = inr(r.marginOnLot);
       var calc = document.createElement("span");
       calc.className = "nowrap";
       calc.textContent = "(" + fmt(r.sellableKg, 1) + " kg × " + inr(r.marginPerKg) + ")";
-      pn.append(pb2, " ", calc);
+      pn.append(b, " ", calc);
     } else {
       pn.className = "profit is-zero";
       pn.textContent = "No margin added. This price only covers your cost.";
     }
-    $("outTotal").textContent = inr(r.finalInr);
 
     var body = $("gtBody");
     body.textContent = "";
@@ -1116,7 +1433,6 @@ function computePrice(i) {
       body.appendChild(tr);
     }
 
-    withSmall($("barInr"), inr(r.finalInr), "/kg");
     if (r.centsPerKg != null) {
       cents.classList.remove("is-empty");
       cents.textContent = "";
@@ -1125,16 +1441,159 @@ function computePrice(i) {
       per.className = "per";
       per.textContent = "per kg ($" + fmt(r.usdPerKg, 3) + ")";
       cents.append(per);
-      withSmall($("barCents"), fmt(r.centsPerKg, 2) + "¢", "/kg");
     } else {
       cents.classList.add("is-empty");
-      cents.textContent = "Add today’s rupees per US dollar rate to see the price in cents.";
-      $("barCents").textContent = "";
+      cents.textContent = "Add today’s rupees per US dollar rate under Fixed costs to see the price in cents.";
     }
   }
 
-  document.addEventListener("input", function () { render(); save(); });
+  function addLine(dl, label, value, cls) {
+    var d = document.createElement("div");
+    if (cls) d.className = cls;
+    var dt = document.createElement("dt");
+    dt.textContent = label;
+    var dd = document.createElement("dd");
+    dd.textContent = value;
+    d.append(dt, dd);
+    dl.appendChild(d);
+  }
+
+  function renderBuy(r) {
+    var res = $("buyResult"), err = $("buyErr"), dl = $("buyBreakdown");
+    if (r.error) {
+      res.classList.add("is-invalid");
+      err.textContent = r.error;
+      err.hidden = false;
+      return;
+    }
+    res.classList.remove("is-invalid");
+
+    dl.textContent = "";
+    addLine(dl, r.targetUnit === "cents"
+      ? "Selling price (" + fmt(r.targetValue, 2) + "¢ at ₹" + fmt(r.fxRate, 2) + " per $)"
+      : "Selling price per kg", inr(r.sellingInr));
+    addLine(dl, r.marginBasis === "pct" ? "Margin (" + fmt(r.marginValue, 1) + "% on cost)" : "Margin", "− " + inr(r.marginPerKg));
+    addLine(dl, "Transport", "− " + inr(r.transPerKg));
+    addLine(dl, "Packing", "− " + inr(r.packPerKg));
+    r.expenses.forEach(function (e) { addLine(dl, e.name, "− " + inr(e.perKg)); });
+    if (r.smallsCreditPerKg > 0) addLine(dl, "Smalls sale", "+ " + inr(r.smallsCreditPerKg));
+    addLine(dl, "Pod cost per sellable kg", inr(r.podCostPerKg), "subtotal");
+    addLine(dl, "Sellable kernels from " + fmt(r.lotKg, 0) + " kg of pods", "× " + fmt(r.sellableKg, 1) + " kg");
+    addLine(dl, "Most you can pay", r.possible ? inrFloor(r.maxLot, 0) : "Not possible", "total");
+
+    $("buyYieldNote").textContent = "At " + pct(r.sellableRatio) + " sellable yield, " + fmt(r.lotKg, 0) +
+      " kg of pods gives about " + fmt(r.sellableKg, 1) + " kg of sellable kernels.";
+
+    var sn = $("buySaveNote");
+    sn.textContent = "";
+    if (r.possible) {
+      err.hidden = true;
+      $("buyMax").textContent = inrFloor(r.maxLot, 0);
+      $("buyFor").textContent = "for " + fmt(r.lotKg, 0) + " kg";
+      $("buyPerKg").textContent = inrFloor(r.perKgPods, 2);
+      $("buyPer20").textContent = inrFloor(r.perKgPods * 20, 0);
+      $("buyPerQ").textContent = inrFloor(r.perKgPods * 100, 0);
+      sn.className = "profit";
+      sn.append("Every ₹1,000 you pay below this adds ");
+      var b = document.createElement("b");
+      b.textContent = inr(r.profitPerThousand) + " per kg";
+      sn.append(b, " to your profit.");
+    } else {
+      $("buyMax").textContent = "—";
+      $("buyFor").textContent = "";
+      $("buyPerKg").textContent = "—";
+      $("buyPer20").textContent = "—";
+      $("buyPerQ").textContent = "—";
+      err.textContent = "At this selling price, your costs and margin come to more than the price, so no purchase price works. Sell for more, or lower your margin or costs.";
+      err.hidden = false;
+    }
+  }
+
+  function renderFixedSummary(i) {
+    var box = $("fixedSummary");
+    box.textContent = "";
+    function add(text, cls) {
+      var c = document.createElement("span");
+      c.className = "chip" + (cls ? " " + cls : "");
+      c.textContent = text;
+      box.appendChild(c);
+    }
+    add(i.transCost > 0 ? "Transport " + money(i.transCost) + (i.transBasis === "lot" ? "/lot" : "/kg") : "No transport", i.transCost > 0 ? "" : "empty");
+    add(i.packCost > 0 ? "Packing " + money(i.packCost) + (i.packBasis === "bag" ? "/bag" : "/kg") : "No packing", i.packCost > 0 ? "" : "empty");
+    i.expenses.forEach(function (e) {
+      if (e.amount > 0) add(((e.name || "").trim() || "Extra expense") + " " + money(e.amount) + (e.basis === "kg" ? "/kg" : "/lot"));
+    });
+    add(i.margin > 0
+      ? "Margin " + (i.marginBasis === "pct" ? i.margin.toLocaleString("en-IN", { maximumFractionDigits: 2 }) + "%" : money(i.margin) + "/kg")
+      : "No margin", i.margin > 0 ? "" : "warn");
+    add(i.fxRate > 0 ? money(i.fxRate) + " per $" : "No exchange rate", i.fxRate > 0 ? "" : "empty");
+  }
+
+  function updateBar() {
+    var v = view(), bi = $("barInr"), bc = $("barCents");
+    $("bar").classList.toggle("is-hidden", !!resultVisible[v === "buy" ? "buyResult" : "result"]);
+    if (v === "buy") {
+      var r = lastBuy;
+      if (!r || r.error || !r.possible) { bi.textContent = "—"; bc.textContent = ""; return; }
+      withSmall(bi, inrFloor(r.maxLot, 0), " max");
+      withSmall(bc, inrFloor(r.perKgPods, 2), "/kg pods");
+    } else {
+      var s = lastSell;
+      if (!s || s.error) { bi.textContent = "—"; bc.textContent = ""; return; }
+      withSmall(bi, inr(s.finalInr), "/kg");
+      if (s.centsPerKg != null) withSmall(bc, fmt(s.centsPerKg, 2) + "¢", "/kg");
+      else bc.textContent = "";
+    }
+  }
+
+  function render() {
+    var tb = radio("transBasis"), pb = radio("packBasis"), mb = radio("marginBasis"), tu = radio("targetUnit");
+    $("transLbl").textContent = tb === "lot" ? "Transport for the lot" : "Transport per kg";
+    $("packLbl").textContent = pb === "bag" ? "Cost per bag" : "Packing per kg";
+    $("bagField").classList.toggle("is-hidden", pb !== "bag");
+    $("marginLbl").textContent = mb === "pct" ? "Margin on cost" : "Margin per kg";
+    $("marginPre").hidden = mb === "pct";
+    $("marginSuf").textContent = mb === "pct" ? "%" : "per kg";
+    $("targetLbl").textContent = tu === "cents" ? "Selling price in US cents" : "Selling price per kg";
+    $("targetPre").hidden = tu === "cents";
+    $("targetSuf").textContent = tu === "cents" ? "¢ per kg" : "per kg";
+
+    var g = gather();
+    renderChecks(g.rows);
+    renderTally(g.rows);
+    lastSell = computePrice(g.input);
+    renderSell(lastSell);
+    lastBuy = computeMaxBuy(g.input);
+    renderBuy(lastBuy);
+    renderFixedSummary(g.input);
+
+    var active = view() === "buy" ? lastBuy : lastSell;
+    if (active && active.error && active.area === "fixed") $("fixedCosts").open = true;
+    updateBar();
+  }
+
+  function showView() {
+    var v = view();
+    Array.prototype.forEach.call(document.querySelectorAll("[data-view]"), function (el) {
+      el.hidden = el.getAttribute("data-view") !== v;
+    });
+    $("tabSell").setAttribute("aria-current", v === "sell" ? "page" : "false");
+    $("tabBuy").setAttribute("aria-current", v === "buy" ? "page" : "false");
+    var active = v === "buy" ? lastBuy : lastSell;
+    if (active && active.error && active.area === "fixed") $("fixedCosts").open = true;
+    updateBar();
+  }
+
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (t && t.classList && t.classList.contains("lot-kg")) {
+      Array.prototype.forEach.call(document.querySelectorAll(".lot-kg"), function (x) { if (x !== t) x.value = t.value; });
+    }
+    render(); save();
+  });
   document.addEventListener("change", function () { render(); save(); });
+  $("fixedCosts").addEventListener("toggle", save);
+  window.addEventListener("hashchange", showView);
   $("addExpense").addEventListener("click", function () {
     var row = addExpense({});
     row.querySelector(".e-name").focus();
@@ -1145,23 +1604,29 @@ function computePrice(i) {
     row.querySelector(".g-name").focus();
     render(); save();
   });
-  $("reset").addEventListener("click", function () {
-    try { localStorage.removeItem(KEY); } catch (e) { /* storage unavailable */ }
-    apply(DEFAULTS);
-    render();
+  Array.prototype.forEach.call(document.querySelectorAll(".reset"), function (btn) {
+    btn.addEventListener("click", function () {
+      try { localStorage.removeItem(KEY); } catch (e) { /* storage unavailable */ }
+      apply(DEFAULTS);
+      render();
+    });
   });
 
   if ("IntersectionObserver" in window) {
-    var bar = $("bar");
-    new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { bar.classList.toggle("is-hidden", e.isIntersecting); });
-    }, { threshold: 0.25 }).observe($("result"));
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { resultVisible[e.target.id] = e.isIntersecting; });
+      updateBar();
+    }, { threshold: 0.25 });
+    io.observe($("result"));
+    io.observe($("buyResult"));
   }
 
   load();
   render();
+  showView();
 })();
 </script>
+<!-- app-only:start -->
 <script>
 // Offline install and updates
 (function () {
@@ -1195,5 +1660,6 @@ function computePrice(i) {
   document.getElementById("reloadBtn").addEventListener("click", function () { location.reload(); });
 })();
 </script>
+<!-- app-only:end -->
 </body>
 </html>
